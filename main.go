@@ -7,6 +7,8 @@ import (
 
 func main() {
 	logger.InitLogger()
+	defer logger.Sync()   // flush log buffer
+	logger.SyncWhenStop() // flush log buffer. when Interrupt or kill.
+
 	logger.Info("USER_INFO", zap.String("name", "Alice"), zap.Int("age", 20))
-	logger.Sync()
 }

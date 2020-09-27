@@ -1,4 +1,4 @@
-// create from https://github.com/nkmr-jp/go-logger-scaffold
+// Create a scaffold by https://github.com/nkmr-jp/go-logger-scaffold
 package logger
 
 import (
@@ -7,9 +7,7 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
-	"time"
 
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -52,20 +50,6 @@ func initZapLogger() {
 		zap.String("version", *getVersion(Revision)),
 		zap.String("hostname", *getHost()),
 	)
-}
-
-// See https://pkg.go.dev/github.com/lestrrat-go/file-rotatelogs
-func newRotateLogs() *rotatelogs.RotateLogs {
-	logFile := "./log/app-%Y-%m-%d_%H.log"
-	res, err := rotatelogs.New(
-		logFile,
-		rotatelogs.WithMaxAge(60*24*time.Hour),
-		rotatelogs.WithRotationTime(time.Hour),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return res
 }
 
 type VersionType int

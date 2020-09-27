@@ -2,3 +2,4 @@ RAW_FILE_PATH=https://raw.githubusercontent.com/nkmr-jp/go-logger-scaffold/maste
 mkdir ./logger
 curl -L "$RAW_FILE_PATH/logger.go" > ./logger/logger.go
 curl -L "$RAW_FILE_PATH/wrapper.go" > ./logger/wrapper.go
+curl -L "$RAW_FILE_PATH/rotate.go" > ./logger/rotate.go
