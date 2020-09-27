@@ -96,7 +96,7 @@ func Fatalf(msg string, err error, fields ...zap.Field) {
 
 // Short log to output to the console.
 func shortLog(msg string, level string) {
-	err := log.Output(3, fmt.Sprintf("[%v] %v", level, msg))
+	err := log.Output(3, fmt.Sprintf("%v %v", color(level), msg))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -104,7 +104,7 @@ func shortLog(msg string, level string) {
 
 // Short log to output to the console with error.
 func shortLogWithError(msg string, level string, err error) {
-	err2 := log.Output(3, fmt.Sprintf("[%v] %v error: %+v", level, msg, err))
+	err2 := log.Output(3, fmt.Sprintf("%v %v error: %+v", color(level), msg, err))
 	if err2 != nil {
 		log.Fatal(err2)
 	}
@@ -114,4 +114,21 @@ func checkInit() {
 	if zapLogger == nil {
 		log.Fatal("The logger is not initialized. InitLogger() must be called.")
 	}
+}
+
+func color(level string) string {
+	color := 30
+	switch level {
+	case "FATAL":
+		color = 31
+	case "ERROR":
+		color = 31
+	case "WARN":
+		color = 33
+	case "INFO":
+		color = 32
+	case "DEBUG":
+		color = 32
+	}
+	return fmt.Sprintf("\x1b[%vm%v\x1b[0m", color, level)
 }
