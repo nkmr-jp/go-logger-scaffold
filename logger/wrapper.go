@@ -94,7 +94,7 @@ func Fatalf(msg string, err error, fields ...zap.Field) {
 	zapLogger.WithOptions(zap.AddCallerSkip(1)).Fatal(msg, fields...)
 }
 
-// Short log to output to the console
+// Short log to output to the console.
 func shortLog(msg string, level string) {
 	err := log.Output(3, fmt.Sprintf("[%v] %v", level, msg))
 	if err != nil {
@@ -102,7 +102,7 @@ func shortLog(msg string, level string) {
 	}
 }
 
-// Short log to output to the console with error
+// Short log to output to the console with error.
 func shortLogWithError(msg string, level string, err error) {
 	err2 := log.Output(3, fmt.Sprintf("[%v] %v error: %+v", level, msg, err))
 	if err2 != nil {

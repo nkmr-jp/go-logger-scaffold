@@ -12,11 +12,13 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var once sync.Once
-var zapLogger *zap.Logger
+var (
+	once      sync.Once
+	zapLogger *zap.Logger
+)
 
 // Initialize the Logger.
-// Outputs short logs to the console and Write structured and detailed json logs to the log file
+// Outputs short logs to the console and Write structured and detailed json logs to the log file.
 func InitLogger() *zap.Logger {
 	once.Do(func() {
 		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
