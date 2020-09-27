@@ -1,26 +1,26 @@
 # go-logger-scaffold
 
-You can easily install and edit rich logging capabilities into your projects.
+Easily install and Edit rich logging capabilities into go projects.
 
-## You will be able to
+## Features
 - Output json structured log to file
   - You can also output information about the number of lines in the file, the method, the host, and the git version
   - These can be useful for debugging
-  - You can easily change the settings. ([logger/logger.go](https://github.com/nkmr-jp/go-logger-scaffold/blob/master/logger/logger.go#L32)).
+  - Easily change the settings. ([logger/logger.go](https://github.com/nkmr-jp/go-logger-scaffold/blob/master/logger/logger.go#L32)).
   - Since it is a json structure, you can use the `jq` command to extract only the data you need.
   - [zap](https://github.com/uber-go/zap) use.
 - Only a simple log output to console
   - It's hard to know what's going on when the console is flooded with detailed logs.
   - The output to the console is a minimal information.
   - [log](https://pkg.go.dev/log) use.
-- You can jump to code from the console log when you 'Run' in GoLand.
+- It can jump to code from the console log when you 'Run' in GoLand.
   - This is why we use the standard log for console logs, not zap.
 - Log file rotation
   - [file-rotatelogs](https://github.com/lestrrat-go/file-rotatelogs) use.
 
-## Install to your project
+## Install
 
-You must have `go 1.14` or higher, and have `go mod init` running.
+must have `go 1.14` or higher, and have `go mod init` running.
 
 ```sh
 cd [your-project-path]
@@ -41,7 +41,7 @@ import (
 
 func main() {
 	logger.InitLogger()
-	defer logger.Sync()
+	defer logger.Sync() // flush log buffer
 
 	logger.Info("USER_INFO", zap.String("name", "Alice"), zap.Int("age", 20))
 }

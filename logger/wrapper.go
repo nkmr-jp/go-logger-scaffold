@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"go.uber.org/zap"
@@ -19,14 +20,25 @@ func Sync() {
 	}
 }
 
-// flush log buffer. when Interrupt or kill.
+// flush log buffer. when interrupt or terminated.
 func SyncWhenStop() {
 	c := make(chan os.Signal, 1)
+
 	go func() {
-		defer Sync() // flush log buffer
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 		s := <-c
-		Info(fmt.Sprintf("got signal %+v", s))
+
+		sigCode := 0
+		switch s.String() {
+		case "interrupt":
+			sigCode = 2
+		case "terminated":
+			sigCode = 15
+		}
+
+		Info(fmt.Sprintf("GOT_SIGNAL_%v", strings.ToUpper(s.String())))
+		Sync() // flush log buffer
+		os.Exit(128 + sigCode)
 	}()
 }
 
@@ -100,6 +112,6 @@ func shortLogWithError(msg string, level string, err error) {
 
 func checkInit() {
 	if zapLogger == nil {
-		log.Fatal("The logger is not initialized. Call logger.InitLogger()")
+		log.Fatal("The logger is not initialized. InitLogger() must be called.")
 	}
 }
