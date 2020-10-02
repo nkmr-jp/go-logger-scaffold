@@ -104,7 +104,7 @@ func shortLog(msg string, level string) {
 
 // Short log to output to the console with error.
 func shortLogWithError(msg string, level string, err error) {
-	err2 := log.Output(3, fmt.Sprintf("%v %v: \x1b[35m%+v\x1b[0m", color(level), msg, err))
+	err2 := log.Output(3, fmt.Sprintf("%v %v: \x1b[35m%v\x1b[0m", color(level), msg, err))
 	if err2 != nil {
 		log.Fatal(err2)
 	}
