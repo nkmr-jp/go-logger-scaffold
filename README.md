@@ -27,6 +27,7 @@ Must have `go 1.14` or higher, and have `go mod init` running.
 cd [your-project-path]
 curl -sSf https://raw.githubusercontent.com/nkmr-jp/go-logger-scaffold/master/install.sh | sh
 go mod vendor
+git add .
 git commit -m "Create logger from https://github.com/nkmr-jp/go-logger-scaffold"
 
 # Now Ready to go. Then feel free to edit the code and use it.
