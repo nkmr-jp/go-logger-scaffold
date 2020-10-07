@@ -17,7 +17,7 @@
 - Jump to Code from log of GoLand console.
   - This is why use the standard log for console log, not zap.
 - Log file rotation.
-  - [file-rotatelogs](https://github.com/lestrrat-go/file-rotatelogs) use.
+  - Using [file-rotatelogs](https://github.com/lestrrat-go/file-rotatelogs).
 
 ## Install
 
