@@ -14,7 +14,7 @@
   - The output to the console is minimal information.
   - Display log level and message with color.
   - Using [log](https://pkg.go.dev/log).
-- Jump to Code from log of GoLand console.
+- Jump to Code from GoLand console log.
   - This is why use the standard log for console log, not zap.
 - Log file rotation.
   - Using [file-rotatelogs](https://github.com/lestrrat-go/file-rotatelogs).
