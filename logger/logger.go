@@ -48,7 +48,7 @@ func initZapLogger() {
 		zapcore.NewMultiWriteSyncer(zapcore.AddSync(newRotateLogs())),
 		zap.DebugLevel,
 	)
-	zapLogger = zap.New(core, zap.AddCaller()).With(
+	zapLogger = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel)).With(
 		zap.String("version", *getVersion(Revision)),
 		zap.String("hostname", *getHost()),
 	)
