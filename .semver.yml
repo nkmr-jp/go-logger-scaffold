@@ -1,5 +1,5 @@
 # semantic-release setting (when using scaffold)
-branches: [ master, main]
+branches: [ master, main ]
 
 # Emoji semver classification
 semver:
