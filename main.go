@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/nkmr-jp/go-zap-scaffold/logger"
+	"github.com/nkmr-jp/go-logger-scaffold/logger"
 	"go.uber.org/zap"
 )
 
