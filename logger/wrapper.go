@@ -9,6 +9,8 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/davecgh/go-spew/spew"
+	"github.com/k0kubun/pp"
 	"go.uber.org/zap"
 )
 
@@ -131,4 +133,22 @@ func color(level string) string {
 		color = 32
 	}
 	return fmt.Sprintf("\x1b[%vm%v\x1b[0m", color, level)
+}
+
+// Wrapper of pp.Print()
+func Print(i interface{}) (n int, err error) {
+	shortLog("pp.Print (console only)", "DEBUG")
+	return pp.Print(i)
+}
+
+// Wrapper of pp.Println()
+func Println(i interface{}) (n int, err error) {
+	shortLog("pp.Println (console only)", "DEBUG")
+	return pp.Println(i)
+}
+
+// Wrapper of spew.Dump()
+func Dump(i interface{}) {
+	shortLog("spew.Dump (console only)", "DEBUG")
+	spew.Dump(i)
 }
