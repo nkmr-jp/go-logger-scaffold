@@ -12,9 +12,14 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+const (
+	defaultVersion = "1.0.0"
+)
+
 var (
 	once      sync.Once
 	zapLogger *zap.Logger
+	version   string
 )
 
 // Initialize the Logger.
@@ -49,30 +54,41 @@ func initZapLogger() {
 		zapcore.DebugLevel,
 	)
 	zapLogger = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel)).With(
-		zap.String("version", *getVersion(Revision)),
+		zap.String("version", getVersion()),
 		zap.String("hostname", *getHost()),
 	)
+}
+
+func getVersion() string {
+	if version == "" {
+		version = defaultVersion
+	}
+
+	return version
+}
+
+func SetVersion(version string) {
+	version = version
 }
 
 type VersionType int
 
 const (
-	_ VersionType = iota
-	Revision
-	Tag
+	VersionTypeRevision VersionType = iota
+	VersionTypeTag
 )
 
-// You can use the git revision or tag as a version.
+// GetVersionByGit use the git revision or tag as a version.
 // When using tag, recommend semantic versioning.
 // See https://semver.org/
-func getVersion(versionType VersionType) *string {
+func GetVersionByGit(versionType VersionType) *string {
 	var out []byte
 	var err error
 
 	switch versionType {
-	case Revision:
+	case VersionTypeRevision:
 		out, err = exec.Command("git", "rev-parse", "--short", "HEAD").Output()
-	case Tag:
+	case VersionTypeTag:
 		out, err = exec.Command("git", "tag").Output()
 	}
 	if err != nil {
