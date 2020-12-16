@@ -16,10 +16,26 @@ const (
 	defaultVersion = "1.0.0"
 )
 
+type VersionType int
+
+const (
+	VersionTypeRevision VersionType = iota
+	VersionTypeTag
+)
+
+type ConsoleType int
+
+const (
+	ConsoleTypeAll ConsoleType = iota
+	ConsoleTypeError
+	ConsoleTypeNone
+)
+
 var (
-	once      sync.Once
-	zapLogger *zap.Logger
-	version   string
+	once        sync.Once
+	zapLogger   *zap.Logger
+	consoleType ConsoleType
+	version     string
 )
 
 // Initialize the Logger.
@@ -71,17 +87,10 @@ func SetVersion(version string) {
 	version = version
 }
 
-type VersionType int
-
-const (
-	VersionTypeRevision VersionType = iota
-	VersionTypeTag
-)
-
-// GetVersionByGit use the git revision or tag as a version.
+// GetVersion use the git revision or tag as a version.
 // When using tag, recommend semantic versioning.
 // See https://semver.org/
-func GetVersionByGit(versionType VersionType) *string {
+func GetVersion(versionType VersionType) *string {
 	var out []byte
 	var err error
 
@@ -107,4 +116,8 @@ func getHost() *string {
 		return nil
 	}
 	return &ret
+}
+
+func SetConsoleType(option ConsoleType) {
+	consoleType = option
 }
