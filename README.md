@@ -21,16 +21,8 @@
 
 ## Install
 
-Must have `go 1.14` or higher, and have `go mod init` running.
-
 ```sh
-cd [your-project-path]
-curl -sSf https://raw.githubusercontent.com/nkmr-jp/go-logger-scaffold/master/install.sh | sh
-go mod vendor
-git add .
-git commit -m "Create logger from https://github.com/nkmr-jp/go-logger-scaffold"
-
-# Now Ready to go. Then feel free to edit the code and use it.
+go get -u github.com/nkmr-jp/go-logger-scaffold/logger
 ```
 
 ## How to use
@@ -40,7 +32,7 @@ Please refer to [main.go](main.go)
 package main
 
 import (
-	"[your-project]/logger"
+	"github.com/nkmr-jp/go-logger-scaffold/logger"
 	"go.uber.org/zap"
 )
 
@@ -96,6 +88,15 @@ $ tail -fq log/*.log | jq -R 'fromjson? | select(.level=="INFO")'
   "name": "Alice",
   "age": 20
 }
+```
+
+## Scaffolding (when you want to edit logger setting details)
+
+```sh
+cd [your-project-path]
+curl -sSf https://raw.githubusercontent.com/nkmr-jp/go-logger-scaffold/master/scaffold.sh | sh
+git add .
+git commit -m "Create logger from https://github.com/nkmr-jp/go-logger-scaffold"
 ```
 
 ## Reference
