@@ -94,7 +94,7 @@ $ tail -fq log/*.log | jq -R 'fromjson? | select(.level=="INFO")'
 
 ```sh
 cd [your-project-path]
-curl -sSf https://raw.githubusercontent.com/nkmr-jp/go-logger-scaffold/master/install.sh | sh
+curl -sSf https://raw.githubusercontent.com/nkmr-jp/go-logger-scaffold/master/scaffold.sh | sh
 git add .
 git commit -m "Create logger from https://github.com/nkmr-jp/go-logger-scaffold"
 ```
