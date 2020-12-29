@@ -80,6 +80,14 @@ func Fatal(msg string, fields ...zap.Field) {
 	zapLogger.WithOptions(zap.AddCallerSkip(1)).Fatal(msg, fields...)
 }
 
+// Outputs a Warn log with formatted error.
+func Warnf(msg string, err error, fields ...zap.Field) {
+	checkInit()
+	shortLogWithError(msg, "WARN", err)
+	fields = append(fields, zap.String("error", fmt.Sprintf("%+v", err)))
+	zapLogger.WithOptions(zap.AddCallerSkip(1)).Warn(msg, fields...)
+}
+
 // Outputs a Error log with formatted error.
 func Errorf(msg string, err error, fields ...zap.Field) {
 	checkInit()
