@@ -3,21 +3,25 @@
 :rocket: Scaffolding for Easy setup that Json Logger and Log File Rotation to golang projects.
 
 ## Features
+
 - Output json structured log to file.
-  - You can also output information about the number of lines in the file, the method, the host, and the git version
-  - These can be useful for debugging
-  - Easily change the settings. ([logger/logger.go](https://github.com/nkmr-jp/go-logger-scaffold/blob/master/logger/logger.go#L32)).
-  - Since it is a json structure, you can use the `jq` command to extract only the data you need.
-  - Using [zap](https://github.com/uber-go/zap).
+    - You can also output information about the number of lines in the file, the method, the host,
+      and the git version
+    - These can be useful for debugging
+    - Easily change the
+      settings. ([logger/logger.go](https://github.com/nkmr-jp/go-logger-scaffold/blob/master/logger/logger.go#L32))
+      .
+    - Since it is a json structure, you can use the `jq` command to extract only the data you need.
+    - Using [zap](https://github.com/uber-go/zap).
 - Output simple log to console.
-  - It's hard to know what's going on when the console is flood with logs.
-  - The output to the console is minimal information.
-  - Display log level and message with color.
-  - Using [log](https://pkg.go.dev/log).
+    - It's hard to know what's going on when the console is flood with logs.
+    - The output to the console is minimal information.
+    - Display log level and message with color.
+    - Using [log](https://pkg.go.dev/log).
 - Jump to Code from GoLand console log.
-  - This is why use the standard log for console log, not zap.
+    - This is why use the standard log for console log, not zap.
 - Log file rotation.
-  - Using [file-rotatelogs](https://github.com/lestrrat-go/file-rotatelogs).
+    - Using [file-rotatelogs](https://github.com/lestrrat-go/file-rotatelogs).
 
 ## Install
 
@@ -26,6 +30,7 @@ go get -u github.com/nkmr-jp/go-logger-scaffold/logger
 ```
 
 ## How to use
+
 Please refer to [main.go](main.go)
 
 ```go
@@ -47,6 +52,7 @@ func main() {
 ## Output
 
 ### Console
+
 ```sh
 $ go run main.go
 2020/09/27 03:29:37 logger.go:26: [INFO] INIT_LOGGER
@@ -58,6 +64,24 @@ $ go run main.go
 ```sh
 ls log/
 app-2020-09-27_03.log
+```
+
+### Options
+
+following options can use. 
+
+- `SetConsoleType(option ConsoleType)`
+- `SetLogFile(file string)`
+- `SetRotationTime(duration time.Duration)`
+- `SetPurgeTime(duration time.Duration)`
+
+example
+
+```go
+// set options before `InitLogger()`. 
+logger.SetConsoleType(logger.ConsoleTypeNone)
+logger.SetLogFile("./log/test/app_%Y-%m-%d.log")
+logger.InitLogger()
 ```
 
 #### jq example
@@ -100,6 +124,7 @@ git commit -m "Create logger from https://github.com/nkmr-jp/go-logger-scaffold"
 ```
 
 ## Reference
+
 * [zap package · pkg.go.dev](https://pkg.go.dev/go.uber.org/zap)
 * [golangの高速な構造化ログライブラリ「zap」の使い方 - Qiita](https://qiita.com/emonuh/items/28dbee9bf2fe51d28153)
 * [Adding Caller Depth support · Issue #715 · uber-go/zap · GitHub](https://github.com/uber-go/zap/issues/715)
