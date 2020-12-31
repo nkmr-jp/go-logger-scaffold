@@ -14,6 +14,8 @@ import (
 	"go.uber.org/zap"
 )
 
+var consoleField string
+
 // Wrapper of Zap's Sync.
 func Sync() {
 	Info("FLUSH_LOG_BUFFER")
@@ -113,11 +115,24 @@ func Fatalf(msg string, err error, fields ...zap.Field) {
 }
 
 // Short log to output to the console.
-func shortLog(msg string, level string) {
-	err := log.Output(3, fmt.Sprintf("%v %v", color(level), msg))
+func shortLog(msg, level string) {
+	var str string
+	if consoleField != "" {
+		str = fmt.Sprintf("%v %v: %v", color(level), msg, Cyan.Add(consoleField))
+		consoleField = ""
+	} else {
+		str = fmt.Sprintf("%v %v", color(level), msg)
+	}
+	err := log.Output(3, str)
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// ConsoleField messages to be displayed on the console
+func ConsoleField(str string) zap.Field {
+	consoleField = str
+	return zap.String("console", str)
 }
 
 // Short log to output to the console with error.
@@ -135,7 +150,7 @@ func checkInit() {
 }
 
 func color(level string) string {
-	color := Black
+	var color Color
 	switch level {
 	case "FATAL":
 		color = Red
