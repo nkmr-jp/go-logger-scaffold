@@ -122,7 +122,7 @@ func shortLog(msg string, level string) {
 
 // Short log to output to the console with error.
 func shortLogWithError(msg string, level string, err error) {
-	err2 := log.Output(3, fmt.Sprintf("%v %v: \x1b[35m%v\x1b[0m", color(level), msg, err))
+	err2 := log.Output(3, fmt.Sprintf("%v %v: %v", color(level), msg, Magenta.Add(err.Error())))
 	if err2 != nil {
 		log.Fatal(err2)
 	}
@@ -135,20 +135,20 @@ func checkInit() {
 }
 
 func color(level string) string {
-	color := 30
+	color := Black
 	switch level {
 	case "FATAL":
-		color = 31
+		color = Red
 	case "ERROR":
-		color = 31
+		color = Red
 	case "WARN":
-		color = 33
+		color = Yellow
 	case "INFO":
-		color = 32
+		color = Green
 	case "DEBUG":
-		color = 32
+		color = Green
 	}
-	return fmt.Sprintf("\x1b[%vm%v\x1b[0m", color, level)
+	return color.Add(level)
 }
 
 // Wrapper of pp.Print()
@@ -167,4 +167,24 @@ func Println(i interface{}) (n int, err error) {
 func Dump(i interface{}) {
 	shortLog("spew.Dump (console only)", "DEBUG")
 	spew.Dump(i)
+}
+
+// See: https://github.com/uber-go/zap/blob/404189cf44aea95b0cd9bddcb0242dd4cf88c510/internal/color/color.go
+const (
+	Black Color = iota + 30
+	Red
+	Green
+	Yellow
+	Blue
+	Magenta
+	Cyan
+	White
+)
+
+// Color represents a text color.
+type Color uint8
+
+// Add adds the coloring to the given string.
+func (c Color) Add(s string) string {
+	return fmt.Sprintf("\x1b[%dm%s\x1b[0m", uint8(c), s)
 }
