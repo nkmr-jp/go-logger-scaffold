@@ -116,6 +116,9 @@ func Fatalf(msg string, err error, fields ...zap.Field) {
 
 // Short log to output to the console.
 func shortLog(msg, level string) {
+	if consoleType != ConsoleTypeAll {
+		return
+	}
 	var str string
 	if consoleField != "" {
 		str = fmt.Sprintf("%v %v: %v", color(level), msg, Cyan.Add(consoleField))
@@ -129,7 +132,8 @@ func shortLog(msg, level string) {
 	}
 }
 
-// ConsoleField messages to be displayed on the console
+// ConsoleField messages to be displayed on the console.
+// It is recommended to use it for the minimum necessary short message.
 func ConsoleField(str string) zap.Field {
 	consoleField = str
 	return zap.String("console", str)
@@ -137,6 +141,9 @@ func ConsoleField(str string) zap.Field {
 
 // Short log to output to the console with error.
 func shortLogWithError(msg string, level string, err error) {
+	if consoleType == ConsoleTypeNone {
+		return
+	}
 	err2 := log.Output(3, fmt.Sprintf("%v %v: %v", color(level), msg, Magenta.Add(err.Error())))
 	if err2 != nil {
 		log.Fatal(err2)
