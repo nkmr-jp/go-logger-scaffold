@@ -120,7 +120,7 @@ func shortLog(msg, level string) {
 	} else {
 		str = fmt.Sprintf("%v %v", color(level), msg)
 	}
-	err := log.Output(3, str)
+	err := log.Output(4, str)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -138,7 +138,7 @@ func shortLogWithError(msg string, level string, err error) {
 	if consoleType == ConsoleTypeNone {
 		return
 	}
-	err2 := log.Output(3, fmt.Sprintf("%v %v: %v", color(level), msg, Magenta.Add(err.Error())))
+	err2 := log.Output(4, fmt.Sprintf("%v %v: %v", color(level), msg, Magenta.Add(err.Error())))
 	if err2 != nil {
 		log.Fatal(err2)
 	}

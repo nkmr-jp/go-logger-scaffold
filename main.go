@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	logger.SetLogFile("./log/hoge/app_%Y-%m-%d.log")
+	logger.SetLogFile("./log/app_%Y-%m-%d.log")
 	logger.InitLogger()
 	defer logger.Sync()   // flush log buffer
 	logger.SyncWhenStop() // flush log buffer. when interrupt or terminated.
