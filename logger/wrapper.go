@@ -16,6 +16,48 @@ import (
 
 var consoleField string
 
+type Wrapper struct {
+	Fields []zap.Field
+}
+
+// NewWrapper can additional fields.
+// ex. Use this when you want to add a common value in the scope of a context, such as an API request.
+func NewWrapper(fields ...zap.Field) *Wrapper {
+	return &Wrapper{Fields: fields}
+}
+
+func (w *Wrapper) Debug(msg string, fields ...zap.Field) {
+	wrapper(msg, "DEBUG").Debug(msg, append(fields, w.Fields...)...)
+}
+func (w *Wrapper) Info(msg string, fields ...zap.Field) {
+	wrapper(msg, "INFO").Info(msg, append(fields, w.Fields...)...)
+}
+func (w *Wrapper) Warn(msg string, fields ...zap.Field) {
+	wrapper(msg, "WARN").Warn(msg, append(fields, w.Fields...)...)
+}
+func (w *Wrapper) Error(msg string, fields ...zap.Field) {
+	wrapper(msg, "ERROR").Error(msg, append(fields, w.Fields...)...)
+}
+func (w *Wrapper) Fatal(msg string, fields ...zap.Field) {
+	wrapper(msg, "FATAL").Fatal(msg, append(fields, w.Fields...)...)
+}
+
+func (w *Wrapper) Debugf(msg string, err error, fields ...zap.Field) {
+	wrapperf(msg, "DEBUG", err).Debug(msg, append(addErrorField(fields, err), w.Fields...)...)
+}
+func (w *Wrapper) Infof(msg string, err error, fields ...zap.Field) {
+	wrapperf(msg, "INFO", err).Info(msg, append(addErrorField(fields, err), w.Fields...)...)
+}
+func (w *Wrapper) Warnf(msg string, err error, fields ...zap.Field) {
+	wrapperf(msg, "WARN", err).Warn(msg, append(addErrorField(fields, err), w.Fields...)...)
+}
+func (w *Wrapper) Errorf(msg string, err error, fields ...zap.Field) {
+	wrapperf(msg, "ERROR", err).Error(msg, append(addErrorField(fields, err), w.Fields...)...)
+}
+func (w *Wrapper) Fatalf(msg string, err error, fields ...zap.Field) {
+	wrapperf(msg, "FATAL", err).Fatal(msg, append(addErrorField(fields, err), w.Fields...)...)
+}
+
 // Wrapper of Zap's Sync.
 func Sync() {
 	Info("FLUSH_LOG_BUFFER")
@@ -46,48 +88,45 @@ func SyncWhenStop() {
 	}()
 }
 
-// Wrapper of Zap's Debug.
+// Debug is Wrapper of Zap's Debug.
+// Outputs a short log to the console. Detailed json log output to log file.
 func Debug(msg string, fields ...zap.Field) {
 	wrapper(msg, "DEBUG").Debug(msg, fields...)
 }
 
-// Wrapper of Zap's Info.
-// Outputs a short log to the console. Detailed json log output to log file.
 func Info(msg string, fields ...zap.Field) {
 	wrapper(msg, "INFO").Info(msg, fields...)
 }
 
-// Wrapper of Zap's Warn.
 func Warn(msg string, fields ...zap.Field) {
 	wrapper(msg, "WARN").Warn(msg, fields...)
 }
 
-// Wrapper of Zap's Error.
 func Error(msg string, fields ...zap.Field) {
 	wrapper(msg, "ERROR").Error(msg, fields...)
 }
 
-// Wrapper of Zap's Fatal.
 func Fatal(msg string, fields ...zap.Field) {
 	wrapper(msg, "FATAL").Fatal(msg, fields...)
 }
 
-// Outputs a Info log with formatted error.
+// Debugf is Outputs a Debug log with formatted error.
+func Debugf(msg string, err error, fields ...zap.Field) {
+	wrapperf(msg, "DEBUG", err).Debug(msg, addErrorField(fields, err)...)
+}
+
 func Infof(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "FATAL", err).Info(msg, addErrorField(fields, err)...)
+	wrapperf(msg, "INFO", err).Info(msg, addErrorField(fields, err)...)
 }
 
-// Outputs a Warn log with formatted error.
 func Warnf(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "FATAL", err).Warn(msg, addErrorField(fields, err)...)
+	wrapperf(msg, "WARN", err).Warn(msg, addErrorField(fields, err)...)
 }
 
-// Outputs a Error log with formatted error.
 func Errorf(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "FATAL", err).Error(msg, addErrorField(fields, err)...)
+	wrapperf(msg, "ERROR", err).Error(msg, addErrorField(fields, err)...)
 }
 
-// Outputs a Fatal log with formatted error.
 func Fatalf(msg string, err error, fields ...zap.Field) {
 	wrapperf(msg, "FATAL", err).Fatal(msg, addErrorField(fields, err)...)
 }

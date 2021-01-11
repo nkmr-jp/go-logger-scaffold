@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nkmr-jp/go-logger-scaffold/logger"
 	"go.uber.org/zap"
@@ -25,4 +26,13 @@ func main() {
 	var err error
 	err = fmt.Errorf("error message")
 	logger.Errorf("SOME_ERROR", err)
+
+	// NewWrapper example.
+	// ex. Use this when you want to add a common value in the scope of a context, such as an API request.
+	w := logger.NewWrapper(
+		zap.Int("user_id", 1),
+		zap.Int64("trace_id", time.Now().UnixNano()),
+	)
+	w.Info("CONTEXT_SCOPE_INFO")
+	w.Errorf("CONTEXT_SCOPE_ERROR", fmt.Errorf("context scope error message"))
 }
