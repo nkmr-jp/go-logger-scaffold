@@ -46,72 +46,66 @@ func SyncWhenStop() {
 	}()
 }
 
+// Wrapper of Zap's Debug.
+func Debug(msg string, fields ...zap.Field) {
+	wrapper(msg, "DEBUG").Debug(msg, fields...)
+}
+
 // Wrapper of Zap's Info.
 // Outputs a short log to the console. Detailed json log output to log file.
 func Info(msg string, fields ...zap.Field) {
-	checkInit()
-	shortLog(msg, "INFO")
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Info(msg, fields...)
-}
-
-// Wrapper of Zap's Debug.
-func Debug(msg string, fields ...zap.Field) {
-	checkInit()
-	shortLog(msg, "DEBUG")
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Debug(msg, fields...)
+	wrapper(msg, "INFO").Info(msg, fields...)
 }
 
 // Wrapper of Zap's Warn.
 func Warn(msg string, fields ...zap.Field) {
-	checkInit()
-	shortLog(msg, "WARN")
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Warn(msg, fields...)
+	wrapper(msg, "WARN").Warn(msg, fields...)
 }
 
 // Wrapper of Zap's Error.
 func Error(msg string, fields ...zap.Field) {
-	checkInit()
-	shortLog(msg, "ERROR")
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Error(msg, fields...)
+	wrapper(msg, "ERROR").Error(msg, fields...)
 }
 
 // Wrapper of Zap's Fatal.
 func Fatal(msg string, fields ...zap.Field) {
-	checkInit()
-	shortLog(msg, "FATAL")
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Fatal(msg, fields...)
+	wrapper(msg, "FATAL").Fatal(msg, fields...)
 }
 
 // Outputs a Info log with formatted error.
 func Infof(msg string, err error, fields ...zap.Field) {
-	checkInit()
-	shortLogWithError(msg, "INFO", err)
-	fields = append(fields, zap.String("error", fmt.Sprintf("%+v", err)))
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Info(msg, fields...)
+	wrapperf(msg, "FATAL", err).Info(msg, addErrorField(fields, err)...)
 }
 
 // Outputs a Warn log with formatted error.
 func Warnf(msg string, err error, fields ...zap.Field) {
-	checkInit()
-	shortLogWithError(msg, "WARN", err)
-	fields = append(fields, zap.String("error", fmt.Sprintf("%+v", err)))
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Warn(msg, fields...)
+	wrapperf(msg, "FATAL", err).Warn(msg, addErrorField(fields, err)...)
 }
 
 // Outputs a Error log with formatted error.
 func Errorf(msg string, err error, fields ...zap.Field) {
-	checkInit()
-	shortLogWithError(msg, "ERROR", err)
-	fields = append(fields, zap.String("error", fmt.Sprintf("%+v", err)))
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Error(msg, fields...)
+	wrapperf(msg, "FATAL", err).Error(msg, addErrorField(fields, err)...)
 }
 
 // Outputs a Fatal log with formatted error.
 func Fatalf(msg string, err error, fields ...zap.Field) {
+	wrapperf(msg, "FATAL", err).Fatal(msg, addErrorField(fields, err)...)
+}
+
+func wrapper(msg, level string) *zap.Logger {
 	checkInit()
-	shortLogWithError(msg, "FATAL", err)
-	fields = append(fields, zap.String("error", fmt.Sprintf("%+v", err)))
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Fatal(msg, fields...)
+	shortLog(msg, level)
+	return zapLogger.WithOptions(zap.AddCallerSkip(1))
+}
+
+func wrapperf(msg, level string, err error) *zap.Logger {
+	checkInit()
+	shortLogWithError(msg, level, err)
+	return zapLogger.WithOptions(zap.AddCallerSkip(1))
+}
+
+func addErrorField(fields []zap.Field, err error) []zap.Field {
+	return append(fields, zap.String("error", fmt.Sprintf("%+v", err)))
 }
 
 // Short log to output to the console.
