@@ -6,14 +6,11 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"syscall"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/k0kubun/pp"
-	. "github.com/logrusorgru/aurora"
-	"github.com/thoas/go-funk"
 	"go.uber.org/zap"
 )
 
@@ -166,95 +163,35 @@ func addErrorField(fields []zap.Field, err error) []zap.Field {
 	return append(fields, zap.String("error", fmt.Sprintf("%+v", err)))
 }
 
-// Short log to output to the console.
-func shortLog(msg, level string, fields []zap.Field) {
-	if consoleType != ConsoleTypeAll {
-		return
-	}
-	if outputType != OutputTypeSimpleConsoleAndFile {
-		return
-	}
-
-	err := log.Output(4, fmt.Sprintf("%v %v%v", color(level), msg, getConsoleMsg(fields)))
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func getConsoleMsg(fields []zap.Field) string {
-	var ret string
-	var consoles []string
-	for _, v := range fields {
-		if funk.ContainsString(consoleFields, v.Key) {
-			var val string
-			if v.String != "" {
-				val = v.String
-			} else {
-				val = strconv.Itoa(int(v.Integer))
-			}
-			// consoles = append(consoles, fmt.Sprintf("%s=%s", v.Key, val))
-			consoles = append(consoles, val)
-		}
-	}
-	if consoles != nil {
-		ret = ": " + fmt.Sprintf("%v", Cyan(strings.Join(consoles, ", ")))
-	}
-	return ret
-}
-
-// Short log to output to the console with error.
-func shortLogWithError(msg string, level string, err error, fields []zap.Field) {
-	if consoleType == ConsoleTypeNone {
-		return
-	}
-	if outputType != OutputTypeSimpleConsoleAndFile {
-		return
-	}
-	err2 := log.Output(
-		4,
-		fmt.Sprintf("%v %v: %v %v", color(level), msg, Magenta(err.Error()), getConsoleMsg(fields)),
-	)
-	if err2 != nil {
-		log.Fatal(err2)
-	}
-}
-
 func checkInit() {
 	if zapLogger == nil {
 		log.Fatal("The logger is not initialized. InitLogger() must be called.")
 	}
 }
 
-func color(level string) string {
-	switch level {
-	case "FATAL":
-		level = Red(level).String()
-	case "ERROR":
-		level = Red(level).String()
-	case "WARN":
-		level = Yellow(level).String()
-	case "INFO":
-		level = Green(level).String()
-	case "DEBUG":
-		level = Green(level).String()
-	}
-	return level
-}
-
 // Wrapper of pp.Print()
 func Print(i interface{}) (n int, err error) {
+	if !checkLevel("DEBUG") {
+		return
+	}
 	shortLog("pp.Print (console only)", "DEBUG", []zap.Field{})
 	return pp.Print(i)
 }
 
 // Wrapper of pp.Println()
 func Println(i interface{}) (n int, err error) {
+	if !checkLevel("DEBUG") {
+		return
+	}
 	shortLog("pp.Println (console only)", "DEBUG", []zap.Field{})
 	return pp.Println(i)
 }
 
 // Wrapper of spew.Dump()
 func Dump(i interface{}) {
+	if !checkLevel("DEBUG") {
+		return
+	}
 	shortLog("spew.Dump (console only)", "DEBUG", []zap.Field{})
 	spew.Dump(i)
 }

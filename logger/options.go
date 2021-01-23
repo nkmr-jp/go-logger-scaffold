@@ -24,8 +24,8 @@ func SetConsoleType(option ConsoleType) {
 type OutputType int
 
 const (
-	// OutputTypeSimpleConsoleAndFile output simple console log and detail file log (default)
-	OutputTypeSimpleConsoleAndFile OutputType = iota
+	// OutputTypeShortConsoleAndFile output simple console log and detail file log (default)
+	OutputTypeShortConsoleAndFile OutputType = iota
 	// OutputTypeConsoleAndFile output detail console log and file log
 	OutputTypeConsoleAndFile
 	// OutputTypeConsole output detail console log
@@ -35,7 +35,7 @@ const (
 )
 
 var outputTypeStrings = [4]string{
-	"SimpleConsoleAndFile",
+	"ShortConsoleAndFile",
 	"ConsoleAndFile",
 	"Console",
 	"File",
@@ -106,7 +106,7 @@ func SetVersion(revisionOrTag string) {
 	version = revisionOrTag
 }
 
-// SetConsoleField
+// SetConsoleField Set the fields to be displayed in the console.
 func SetConsoleField(fieldKey ...string) {
 	consoleFields = append(consoleFields, fieldKey...)
 }

@@ -12,10 +12,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-const (
-	defaultVersion = "1.0.0"
-)
-
 var (
 	once          sync.Once
 	zapLogger     *zap.Logger
@@ -70,7 +66,7 @@ func getVersion() string {
 	if version != "" {
 		return version
 	}
-	if out, err := exec.Command("git", "rev-parse", "--short", "HEAD").Output(); err != nil {
+	if out, err := exec.Command("git", "rev-parse", "--short", "HEAD").Output(); err == nil {
 		return strings.TrimRight(string(out), "\n")
 	}
 
@@ -95,7 +91,7 @@ func getCallerEncoder() zapcore.CallerEncoder {
 
 func getSyncers() (syncers []zapcore.WriteSyncer) {
 	switch outputType {
-	case OutputTypeSimpleConsoleAndFile, OutputTypeFile:
+	case OutputTypeShortConsoleAndFile, OutputTypeFile:
 		syncers = append(syncers, zapcore.AddSync(newRotateLogs()))
 	case OutputTypeConsoleAndFile:
 		syncers = append(syncers, zapcore.AddSync(os.Stdout), zapcore.AddSync(newRotateLogs()))
