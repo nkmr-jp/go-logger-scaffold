@@ -23,8 +23,7 @@ func main() {
 	logger.Info("OUT_PUT_TO_CONSOLE", logger.ConsoleField("messages to be displayed on the console"))
 
 	// error log example
-	var err error
-	err = fmt.Errorf("error message")
+	err := fmt.Errorf("error message")
 	logger.Errorf("SOME_ERROR", err)
 
 	// NewWrapper example.
