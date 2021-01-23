@@ -4,8 +4,6 @@ package logger
 import (
 	"log"
 	"os"
-	"os/exec"
-	"strings"
 	"sync"
 
 	"go.uber.org/zap"
@@ -14,13 +12,6 @@ import (
 
 const (
 	defaultVersion = "1.0.0"
-)
-
-type VersionType int
-
-const (
-	VersionTypeRevision VersionType = iota
-	VersionTypeTag
 )
 
 type ConsoleType int
@@ -85,28 +76,6 @@ func getVersion() string {
 
 func SetVersion(version string) {
 	version = version
-}
-
-// GetVersion use the git revision or tag as a version.
-// When using tag, recommend semantic versioning.
-// See https://semver.org/
-func GetVersion(versionType VersionType) *string {
-	var out []byte
-	var err error
-
-	switch versionType {
-	case VersionTypeRevision:
-		out, err = exec.Command("git", "rev-parse", "--short", "HEAD").Output()
-	case VersionTypeTag:
-		out, err = exec.Command("git", "tag").Output()
-	}
-	if err != nil {
-		log.Print(err)
-		return nil
-	}
-
-	ret := strings.TrimRight(string(out), "\n")
-	return &ret
 }
 
 func getHost() *string {
