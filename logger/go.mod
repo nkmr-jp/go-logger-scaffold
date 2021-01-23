@@ -13,5 +13,6 @@ require (
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/tebeka/strftime v0.1.5 // indirect
+	github.com/thoas/go-funk v0.7.0 // indirect
 	go.uber.org/zap v1.16.0
 )

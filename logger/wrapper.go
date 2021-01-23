@@ -6,15 +6,15 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/k0kubun/pp"
+	"github.com/thoas/go-funk"
 	"go.uber.org/zap"
 )
-
-var consoleField string
 
 type Wrapper struct {
 	Fields []zap.Field
@@ -27,35 +27,53 @@ func NewWrapper(fields ...zap.Field) *Wrapper {
 }
 
 func (w *Wrapper) Debug(msg string, fields ...zap.Field) {
-	wrapper(msg, "DEBUG").Debug(msg, append(fields, w.Fields...)...)
+	fields = append(fields, w.Fields...)
+	wrapper(msg, "DEBUG", fields).Debug(msg, fields...)
 }
+
 func (w *Wrapper) Info(msg string, fields ...zap.Field) {
-	wrapper(msg, "INFO").Info(msg, append(fields, w.Fields...)...)
+	fields = append(fields, w.Fields...)
+	wrapper(msg, "INFO", fields).Info(msg, fields...)
 }
+
 func (w *Wrapper) Warn(msg string, fields ...zap.Field) {
-	wrapper(msg, "WARN").Warn(msg, append(fields, w.Fields...)...)
+	fields = append(fields, w.Fields...)
+	wrapper(msg, "WARN", fields).Warn(msg, fields...)
 }
+
 func (w *Wrapper) Error(msg string, fields ...zap.Field) {
-	wrapper(msg, "ERROR").Error(msg, append(fields, w.Fields...)...)
+	fields = append(fields, w.Fields...)
+	wrapper(msg, "ERROR", fields).Error(msg, fields...)
 }
+
 func (w *Wrapper) Fatal(msg string, fields ...zap.Field) {
-	wrapper(msg, "FATAL").Fatal(msg, append(fields, w.Fields...)...)
+	fields = append(fields, w.Fields...)
+	wrapper(msg, "FATAL", fields).Fatal(msg, fields...)
 }
 
 func (w *Wrapper) Debugf(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "DEBUG", err).Debug(msg, append(addErrorField(fields, err), w.Fields...)...)
+	fields = append(addErrorField(fields, err), w.Fields...)
+	wrapperf(msg, "DEBUG", err, fields).Debug(msg, fields...)
 }
+
 func (w *Wrapper) Infof(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "INFO", err).Info(msg, append(addErrorField(fields, err), w.Fields...)...)
+	fields = append(addErrorField(fields, err), w.Fields...)
+	wrapperf(msg, "INFO", err, fields).Info(msg, fields...)
 }
+
 func (w *Wrapper) Warnf(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "WARN", err).Warn(msg, append(addErrorField(fields, err), w.Fields...)...)
+	fields = append(addErrorField(fields, err), w.Fields...)
+	wrapperf(msg, "WARN", err, fields).Warn(msg, fields...)
 }
+
 func (w *Wrapper) Errorf(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "ERROR", err).Error(msg, append(addErrorField(fields, err), w.Fields...)...)
+	fields = append(addErrorField(fields, err), w.Fields...)
+	wrapperf(msg, "ERROR", err, fields).Error(msg, fields...)
 }
+
 func (w *Wrapper) Fatalf(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "FATAL", err).Fatal(msg, append(addErrorField(fields, err), w.Fields...)...)
+	fields = append(addErrorField(fields, err), w.Fields...)
+	wrapperf(msg, "FATAL", err, fields).Fatal(msg, fields...)
 }
 
 // Wrapper of Zap's Sync.
@@ -91,55 +109,55 @@ func SyncWhenStop() {
 // Debug is Wrapper of Zap's Debug.
 // Outputs a short log to the console. Detailed json log output to log file.
 func Debug(msg string, fields ...zap.Field) {
-	wrapper(msg, "DEBUG").Debug(msg, fields...)
+	wrapper(msg, "DEBUG", fields).Debug(msg, fields...)
 }
 
 func Info(msg string, fields ...zap.Field) {
-	wrapper(msg, "INFO").Info(msg, fields...)
+	wrapper(msg, "INFO", fields).Info(msg, fields...)
 }
 
 func Warn(msg string, fields ...zap.Field) {
-	wrapper(msg, "WARN").Warn(msg, fields...)
+	wrapper(msg, "WARN", fields).Warn(msg, fields...)
 }
 
 func Error(msg string, fields ...zap.Field) {
-	wrapper(msg, "ERROR").Error(msg, fields...)
+	wrapper(msg, "ERROR", fields).Error(msg, fields...)
 }
 
 func Fatal(msg string, fields ...zap.Field) {
-	wrapper(msg, "FATAL").Fatal(msg, fields...)
+	wrapper(msg, "FATAL", fields).Fatal(msg, fields...)
 }
 
 // Debugf is Outputs a Debug log with formatted error.
 func Debugf(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "DEBUG", err).Debug(msg, addErrorField(fields, err)...)
+	wrapperf(msg, "DEBUG", err, fields).Debug(msg, addErrorField(fields, err)...)
 }
 
 func Infof(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "INFO", err).Info(msg, addErrorField(fields, err)...)
+	wrapperf(msg, "INFO", err, fields).Info(msg, addErrorField(fields, err)...)
 }
 
 func Warnf(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "WARN", err).Warn(msg, addErrorField(fields, err)...)
+	wrapperf(msg, "WARN", err, fields).Warn(msg, addErrorField(fields, err)...)
 }
 
 func Errorf(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "ERROR", err).Error(msg, addErrorField(fields, err)...)
+	wrapperf(msg, "ERROR", err, fields).Error(msg, addErrorField(fields, err)...)
 }
 
 func Fatalf(msg string, err error, fields ...zap.Field) {
-	wrapperf(msg, "FATAL", err).Fatal(msg, addErrorField(fields, err)...)
+	wrapperf(msg, "FATAL", err, fields).Fatal(msg, addErrorField(fields, err)...)
 }
 
-func wrapper(msg, level string) *zap.Logger {
+func wrapper(msg, level string, fields []zap.Field) *zap.Logger {
 	checkInit()
-	shortLog(msg, level)
+	shortLog(msg, level, fields)
 	return zapLogger.WithOptions(zap.AddCallerSkip(1))
 }
 
-func wrapperf(msg, level string, err error) *zap.Logger {
+func wrapperf(msg, level string, err error, fields []zap.Field) *zap.Logger {
 	checkInit()
-	shortLogWithError(msg, level, err)
+	shortLogWithError(msg, level, err, fields)
 	return zapLogger.WithOptions(zap.AddCallerSkip(1))
 }
 
@@ -148,36 +166,53 @@ func addErrorField(fields []zap.Field, err error) []zap.Field {
 }
 
 // Short log to output to the console.
-func shortLog(msg, level string) {
+func shortLog(msg, level string, fields []zap.Field) {
 	if consoleType != ConsoleTypeAll {
 		return
 	}
-	var str string
-	if consoleField != "" {
-		str = fmt.Sprintf("%v %v: %v", color(level), msg, Cyan.Add(consoleField))
-		consoleField = ""
-	} else {
-		str = fmt.Sprintf("%v %v", color(level), msg)
+	if outputType != OutputTypeSimpleConsoleAndFile {
+		return
 	}
-	err := log.Output(4, str)
+
+	err := log.Output(4, fmt.Sprintf("%v %v%v", color(level), msg, getConsoleMsg(fields)))
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-// ConsoleField messages to be displayed on the console.
-// It is recommended to use it for the minimum necessary short message.
-func ConsoleField(str string) zap.Field {
-	consoleField = str
-	return zap.String("console", str)
+func getConsoleMsg(fields []zap.Field) string {
+	var ret string
+	var consoles []string
+	for _, v := range fields {
+		if funk.ContainsString(consoleFields, v.Key) {
+			var val string
+			if v.String != "" {
+				val = v.String
+			} else {
+				val = strconv.Itoa(int(v.Integer))
+			}
+			// consoles = append(consoles, fmt.Sprintf("%s=%s", v.Key, val))
+			consoles = append(consoles, val)
+		}
+	}
+	if consoles != nil {
+		ret = ": " + fmt.Sprintf("%v", Cyan.Add(strings.Join(consoles, ", ")))
+	}
+	return ret
 }
 
 // Short log to output to the console with error.
-func shortLogWithError(msg string, level string, err error) {
+func shortLogWithError(msg string, level string, err error, fields []zap.Field) {
 	if consoleType == ConsoleTypeNone {
 		return
 	}
-	err2 := log.Output(4, fmt.Sprintf("%v %v: %v", color(level), msg, Magenta.Add(err.Error())))
+	if outputType != OutputTypeSimpleConsoleAndFile {
+		return
+	}
+	err2 := log.Output(
+		4,
+		fmt.Sprintf("%v %v: %v %v", color(level), msg, Magenta.Add(err.Error()), getConsoleMsg(fields)),
+	)
 	if err2 != nil {
 		log.Fatal(err2)
 	}
@@ -208,19 +243,19 @@ func color(level string) string {
 
 // Wrapper of pp.Print()
 func Print(i interface{}) (n int, err error) {
-	shortLog("pp.Print (console only)", "DEBUG")
+	shortLog("pp.Print (console only)", "DEBUG", []zap.Field{})
 	return pp.Print(i)
 }
 
 // Wrapper of pp.Println()
 func Println(i interface{}) (n int, err error) {
-	shortLog("pp.Println (console only)", "DEBUG")
+	shortLog("pp.Println (console only)", "DEBUG", []zap.Field{})
 	return pp.Println(i)
 }
 
 // Wrapper of spew.Dump()
 func Dump(i interface{}) {
-	shortLog("spew.Dump (console only)", "DEBUG")
+	shortLog("spew.Dump (console only)", "DEBUG", []zap.Field{})
 	spew.Dump(i)
 }
 

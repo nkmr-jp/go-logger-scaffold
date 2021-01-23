@@ -10,6 +10,7 @@ import (
 
 func main() {
 	logger.SetLogFile("./log/app_%Y-%m-%d.log")
+	logger.SetConsoleField("console")
 	logger.InitLogger()
 	defer logger.Sync()   // flush log buffer
 	logger.SyncWhenStop() // flush log buffer. when interrupt or terminated.
@@ -20,7 +21,7 @@ func main() {
 	logger.Info("USER_INFO", zap.String("name", "Alice"), zap.Int("age", 20))
 
 	// console log example
-	logger.Info("OUT_PUT_TO_CONSOLE", logger.ConsoleField("messages to be displayed on the console"))
+	logger.Info("OUT_PUT_TO_CONSOLE", zap.String("console", "out upt to console"))
 
 	// error log example
 	err := fmt.Errorf("error message")
