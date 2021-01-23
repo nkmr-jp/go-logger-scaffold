@@ -12,6 +12,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/k0kubun/pp"
+	. "github.com/logrusorgru/aurora"
 	"github.com/thoas/go-funk"
 	"go.uber.org/zap"
 )
@@ -196,7 +197,7 @@ func getConsoleMsg(fields []zap.Field) string {
 		}
 	}
 	if consoles != nil {
-		ret = ": " + fmt.Sprintf("%v", Cyan.Add(strings.Join(consoles, ", ")))
+		ret = ": " + fmt.Sprintf("%v", Cyan(strings.Join(consoles, ", ")))
 	}
 	return ret
 }
@@ -211,7 +212,7 @@ func shortLogWithError(msg string, level string, err error, fields []zap.Field) 
 	}
 	err2 := log.Output(
 		4,
-		fmt.Sprintf("%v %v: %v %v", color(level), msg, Magenta.Add(err.Error()), getConsoleMsg(fields)),
+		fmt.Sprintf("%v %v: %v %v", color(level), msg, Magenta(err.Error()), getConsoleMsg(fields)),
 	)
 	if err2 != nil {
 		log.Fatal(err2)
@@ -225,20 +226,19 @@ func checkInit() {
 }
 
 func color(level string) string {
-	var color Color
 	switch level {
 	case "FATAL":
-		color = Red
+		level = Red(level).String()
 	case "ERROR":
-		color = Red
+		level = Red(level).String()
 	case "WARN":
-		color = Yellow
+		level = Yellow(level).String()
 	case "INFO":
-		color = Green
+		level = Green(level).String()
 	case "DEBUG":
-		color = Green
+		level = Green(level).String()
 	}
-	return color.Add(level)
+	return level
 }
 
 // Wrapper of pp.Print()
@@ -257,24 +257,4 @@ func Println(i interface{}) (n int, err error) {
 func Dump(i interface{}) {
 	shortLog("spew.Dump (console only)", "DEBUG", []zap.Field{})
 	spew.Dump(i)
-}
-
-// See: https://github.com/uber-go/zap/blob/404189cf44aea95b0cd9bddcb0242dd4cf88c510/internal/color/color.go
-const (
-	Black Color = iota + 30
-	Red
-	Green
-	Yellow
-	Blue
-	Magenta
-	Cyan
-	White
-)
-
-// Color represents a text color.
-type Color uint8
-
-// Add adds the coloring to the given string.
-func (c Color) Add(s string) string {
-	return fmt.Sprintf("\x1b[%dm%s\x1b[0m", uint8(c), s)
 }
