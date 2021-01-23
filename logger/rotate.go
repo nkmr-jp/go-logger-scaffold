@@ -35,19 +35,6 @@ func newRotateLogs() *rotatelogs.RotateLogs {
 	return res
 }
 
-// SetLogFile set log file path ex. "./log/app_%Y-%m-%d.log"
-func SetLogFile(file string) {
-	logFile = file
-}
-
-func SetRotationTime(duration time.Duration) {
-	rotationTime = duration
-}
-
-func SetPurgeTime(duration time.Duration) {
-	purgeTime = duration
-}
-
 func setRotateDefault() {
 	if logFile == "" {
 		logFile = logFileDefault

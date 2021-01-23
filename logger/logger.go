@@ -4,6 +4,8 @@ package logger
 import (
 	"log"
 	"os"
+	"os/exec"
+	"strings"
 	"sync"
 
 	"go.uber.org/zap"
@@ -14,19 +16,15 @@ const (
 	defaultVersion = "1.0.0"
 )
 
-type ConsoleType int
-
-const (
-	ConsoleTypeAll ConsoleType = iota
-	ConsoleTypeError
-	ConsoleTypeNone
-)
-
 var (
-	once        sync.Once
-	zapLogger   *zap.Logger
-	consoleType ConsoleType
-	version     string
+	once          sync.Once
+	zapLogger     *zap.Logger
+	consoleType   ConsoleType
+	outputType    OutputType
+	version       string
+	logLevel      zapcore.Level // Default is InfoLevel
+	callerEncoder zapcore.CallerEncoder
+	consoleFields []string
 )
 
 // Initialize the Logger.
@@ -42,6 +40,8 @@ func InitLogger() *zap.Logger {
 
 // See https://pkg.go.dev/go.uber.org/zap
 func initZapLogger() {
+	log.Printf("log level: %v", logLevel.CapitalString())
+	log.Printf("output type: %v", outputType.String())
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "ts",
 		LevelKey:       "level",
@@ -53,12 +53,12 @@ func initZapLogger() {
 		EncodeLevel:    zapcore.CapitalLevelEncoder,
 		EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
 		EncodeDuration: zapcore.StringDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
+		EncodeCaller:   getCallerEncoder(),
 	}
 	core := zapcore.NewCore(
 		zapcore.NewJSONEncoder(encoderConfig),
-		zapcore.NewMultiWriteSyncer(zapcore.AddSync(newRotateLogs())),
-		zapcore.DebugLevel,
+		zapcore.NewMultiWriteSyncer(getSyncers()...),
+		logLevel,
 	)
 	zapLogger = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel)).With(
 		zap.String("version", getVersion()),
@@ -67,15 +67,14 @@ func initZapLogger() {
 }
 
 func getVersion() string {
-	if version == "" {
-		version = defaultVersion
+	if version != "" {
+		return version
+	}
+	if out, err := exec.Command("git", "rev-parse", "--short", "HEAD").Output(); err != nil {
+		return strings.TrimRight(string(out), "\n")
 	}
 
-	return version
-}
-
-func SetVersion(version string) {
-	version = version
+	return "undefined"
 }
 
 func getHost() *string {
@@ -87,6 +86,21 @@ func getHost() *string {
 	return &ret
 }
 
-func SetConsoleType(option ConsoleType) {
-	consoleType = option
+func getCallerEncoder() zapcore.CallerEncoder {
+	if callerEncoder != nil {
+		return callerEncoder
+	}
+	return zapcore.ShortCallerEncoder
+}
+
+func getSyncers() (syncers []zapcore.WriteSyncer) {
+	switch outputType {
+	case OutputTypeSimpleConsoleAndFile, OutputTypeFile:
+		syncers = append(syncers, zapcore.AddSync(newRotateLogs()))
+	case OutputTypeConsoleAndFile:
+		syncers = append(syncers, zapcore.AddSync(os.Stdout), zapcore.AddSync(newRotateLogs()))
+	case OutputTypeConsole:
+		syncers = append(syncers, zapcore.AddSync(os.Stdout))
+	}
+	return
 }
