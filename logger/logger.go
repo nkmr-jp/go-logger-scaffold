@@ -12,30 +12,15 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-const (
-	defaultVersion = "1.0.0"
-)
-
-type VersionType int
-
-const (
-	VersionTypeRevision VersionType = iota
-	VersionTypeTag
-)
-
-type ConsoleType int
-
-const (
-	ConsoleTypeAll ConsoleType = iota
-	ConsoleTypeError
-	ConsoleTypeNone
-)
-
 var (
-	once        sync.Once
-	zapLogger   *zap.Logger
-	consoleType ConsoleType
-	version     string
+	once          sync.Once
+	zapLogger     *zap.Logger
+	consoleType   ConsoleType
+	outputType    OutputType
+	version       string
+	logLevel      zapcore.Level // Default is InfoLevel
+	callerEncoder zapcore.CallerEncoder
+	consoleFields []string
 )
 
 // Initialize the Logger.
@@ -51,6 +36,8 @@ func InitLogger() *zap.Logger {
 
 // See https://pkg.go.dev/go.uber.org/zap
 func initZapLogger() {
+	log.Printf("log level: %v", logLevel.CapitalString())
+	log.Printf("output type: %v", outputType.String())
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "ts",
 		LevelKey:       "level",
@@ -62,12 +49,12 @@ func initZapLogger() {
 		EncodeLevel:    zapcore.CapitalLevelEncoder,
 		EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
 		EncodeDuration: zapcore.StringDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
+		EncodeCaller:   getCallerEncoder(),
 	}
 	core := zapcore.NewCore(
 		zapcore.NewJSONEncoder(encoderConfig),
-		zapcore.NewMultiWriteSyncer(zapcore.AddSync(newRotateLogs())),
-		zapcore.DebugLevel,
+		zapcore.NewMultiWriteSyncer(getSyncers()...),
+		logLevel,
 	)
 	zapLogger = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel)).With(
 		zap.String("version", getVersion()),
@@ -76,37 +63,14 @@ func initZapLogger() {
 }
 
 func getVersion() string {
-	if version == "" {
-		version = defaultVersion
+	if version != "" {
+		return version
+	}
+	if out, err := exec.Command("git", "rev-parse", "--short", "HEAD").Output(); err == nil {
+		return strings.TrimRight(string(out), "\n")
 	}
 
-	return version
-}
-
-func SetVersion(version string) {
-	version = version
-}
-
-// GetVersion use the git revision or tag as a version.
-// When using tag, recommend semantic versioning.
-// See https://semver.org/
-func GetVersion(versionType VersionType) *string {
-	var out []byte
-	var err error
-
-	switch versionType {
-	case VersionTypeRevision:
-		out, err = exec.Command("git", "rev-parse", "--short", "HEAD").Output()
-	case VersionTypeTag:
-		out, err = exec.Command("git", "tag").Output()
-	}
-	if err != nil {
-		log.Print(err)
-		return nil
-	}
-
-	ret := strings.TrimRight(string(out), "\n")
-	return &ret
+	return "undefined"
 }
 
 func getHost() *string {
@@ -118,6 +82,21 @@ func getHost() *string {
 	return &ret
 }
 
-func SetConsoleType(option ConsoleType) {
-	consoleType = option
+func getCallerEncoder() zapcore.CallerEncoder {
+	if callerEncoder != nil {
+		return callerEncoder
+	}
+	return zapcore.ShortCallerEncoder
+}
+
+func getSyncers() (syncers []zapcore.WriteSyncer) {
+	switch outputType {
+	case OutputTypeShortConsoleAndFile, OutputTypeFile:
+		syncers = append(syncers, zapcore.AddSync(newRotateLogs()))
+	case OutputTypeConsoleAndFile:
+		syncers = append(syncers, zapcore.AddSync(os.Stdout), zapcore.AddSync(newRotateLogs()))
+	case OutputTypeConsole:
+		syncers = append(syncers, zapcore.AddSync(os.Stdout))
+	}
+	return
 }

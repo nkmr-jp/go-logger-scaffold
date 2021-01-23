@@ -9,13 +9,20 @@ import (
 )
 
 const (
-	logFile      = "./log/app_%Y-%m-%d.log"
-	rotationTime = 24 * time.Hour
-	purgeTime    = 7 * 24 * time.Hour
+	logFileDefault      = "./log/app_%Y-%m-%d.log"
+	rotationTimeDefault = 24 * time.Hour
+	purgeTimeDefault    = 7 * 24 * time.Hour
+)
+
+var (
+	logFile      string
+	rotationTime time.Duration
+	purgeTime    time.Duration
 )
 
 // See https://github.com/lestrrat-go/file-rotatelogs
 func newRotateLogs() *rotatelogs.RotateLogs {
+	setRotateDefault()
 	res, err := rotatelogs.New(
 		logFile,
 		rotatelogs.WithRotationTime(rotationTime),
@@ -26,4 +33,16 @@ func newRotateLogs() *rotatelogs.RotateLogs {
 	}
 	log.Printf("log file path: %v", logFile)
 	return res
+}
+
+func setRotateDefault() {
+	if logFile == "" {
+		logFile = logFileDefault
+	}
+	if rotationTime == 0 {
+		rotationTime = rotationTimeDefault
+	}
+	if purgeTime == 0 {
+		purgeTime = purgeTimeDefault
+	}
 }

@@ -14,6 +14,66 @@ import (
 	"go.uber.org/zap"
 )
 
+type Wrapper struct {
+	Fields []zap.Field
+}
+
+// NewWrapper can additional fields.
+// ex. Use this when you want to add a common value in the scope of a context, such as an API request.
+func NewWrapper(fields ...zap.Field) *Wrapper {
+	return &Wrapper{Fields: fields}
+}
+
+func (w *Wrapper) Debug(msg string, fields ...zap.Field) {
+	fields = append(fields, w.Fields...)
+	wrapper(msg, "DEBUG", fields).Debug(msg, fields...)
+}
+
+func (w *Wrapper) Info(msg string, fields ...zap.Field) {
+	fields = append(fields, w.Fields...)
+	wrapper(msg, "INFO", fields).Info(msg, fields...)
+}
+
+func (w *Wrapper) Warn(msg string, fields ...zap.Field) {
+	fields = append(fields, w.Fields...)
+	wrapper(msg, "WARN", fields).Warn(msg, fields...)
+}
+
+func (w *Wrapper) Error(msg string, fields ...zap.Field) {
+	fields = append(fields, w.Fields...)
+	wrapper(msg, "ERROR", fields).Error(msg, fields...)
+}
+
+func (w *Wrapper) Fatal(msg string, fields ...zap.Field) {
+	fields = append(fields, w.Fields...)
+	wrapper(msg, "FATAL", fields).Fatal(msg, fields...)
+}
+
+func (w *Wrapper) Debugf(msg string, err error, fields ...zap.Field) {
+	fields = append(addErrorField(fields, err), w.Fields...)
+	wrapperf(msg, "DEBUG", err, fields).Debug(msg, fields...)
+}
+
+func (w *Wrapper) Infof(msg string, err error, fields ...zap.Field) {
+	fields = append(addErrorField(fields, err), w.Fields...)
+	wrapperf(msg, "INFO", err, fields).Info(msg, fields...)
+}
+
+func (w *Wrapper) Warnf(msg string, err error, fields ...zap.Field) {
+	fields = append(addErrorField(fields, err), w.Fields...)
+	wrapperf(msg, "WARN", err, fields).Warn(msg, fields...)
+}
+
+func (w *Wrapper) Errorf(msg string, err error, fields ...zap.Field) {
+	fields = append(addErrorField(fields, err), w.Fields...)
+	wrapperf(msg, "ERROR", err, fields).Error(msg, fields...)
+}
+
+func (w *Wrapper) Fatalf(msg string, err error, fields ...zap.Field) {
+	fields = append(addErrorField(fields, err), w.Fields...)
+	wrapperf(msg, "FATAL", err, fields).Fatal(msg, fields...)
+}
+
 // Wrapper of Zap's Sync.
 func Sync() {
 	Info("FLUSH_LOG_BUFFER")
@@ -44,72 +104,63 @@ func SyncWhenStop() {
 	}()
 }
 
-// Wrapper of Zap's Info.
+// Debug is Wrapper of Zap's Debug.
 // Outputs a short log to the console. Detailed json log output to log file.
-func Info(msg string, fields ...zap.Field) {
-	checkInit()
-	shortLog(msg, "INFO")
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Info(msg, fields...)
-}
-
-// Wrapper of Zap's Debug.
 func Debug(msg string, fields ...zap.Field) {
-	checkInit()
-	shortLog(msg, "DEBUG")
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Debug(msg, fields...)
+	wrapper(msg, "DEBUG", fields).Debug(msg, fields...)
 }
 
-// Wrapper of Zap's Warn.
+func Info(msg string, fields ...zap.Field) {
+	wrapper(msg, "INFO", fields).Info(msg, fields...)
+}
+
 func Warn(msg string, fields ...zap.Field) {
-	checkInit()
-	shortLog(msg, "WARN")
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Warn(msg, fields...)
+	wrapper(msg, "WARN", fields).Warn(msg, fields...)
 }
 
-// Wrapper of Zap's Error.
 func Error(msg string, fields ...zap.Field) {
-	checkInit()
-	shortLog(msg, "ERROR")
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Error(msg, fields...)
+	wrapper(msg, "ERROR", fields).Error(msg, fields...)
 }
 
-// Wrapper of Zap's Fatal.
 func Fatal(msg string, fields ...zap.Field) {
-	checkInit()
-	shortLog(msg, "FATAL")
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Fatal(msg, fields...)
+	wrapper(msg, "FATAL", fields).Fatal(msg, fields...)
 }
 
-// Outputs a Error log with formatted error.
+// Debugf is Outputs a Debug log with formatted error.
+func Debugf(msg string, err error, fields ...zap.Field) {
+	wrapperf(msg, "DEBUG", err, fields).Debug(msg, addErrorField(fields, err)...)
+}
+
+func Infof(msg string, err error, fields ...zap.Field) {
+	wrapperf(msg, "INFO", err, fields).Info(msg, addErrorField(fields, err)...)
+}
+
+func Warnf(msg string, err error, fields ...zap.Field) {
+	wrapperf(msg, "WARN", err, fields).Warn(msg, addErrorField(fields, err)...)
+}
+
 func Errorf(msg string, err error, fields ...zap.Field) {
-	checkInit()
-	shortLogWithError(msg, "ERROR", err)
-	fields = append(fields, zap.String("error", fmt.Sprintf("%+v", err)))
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Error(msg, fields...)
+	wrapperf(msg, "ERROR", err, fields).Error(msg, addErrorField(fields, err)...)
 }
 
-// Outputs a Fatal log with formatted error.
 func Fatalf(msg string, err error, fields ...zap.Field) {
+	wrapperf(msg, "FATAL", err, fields).Fatal(msg, addErrorField(fields, err)...)
+}
+
+func wrapper(msg, level string, fields []zap.Field) *zap.Logger {
 	checkInit()
-	shortLogWithError(msg, "FATAL", err)
-	fields = append(fields, zap.String("error", fmt.Sprintf("%+v", err)))
-	zapLogger.WithOptions(zap.AddCallerSkip(1)).Fatal(msg, fields...)
+	shortLog(msg, level, fields)
+	return zapLogger.WithOptions(zap.AddCallerSkip(1))
 }
 
-// Short log to output to the console.
-func shortLog(msg string, level string) {
-	err := log.Output(3, fmt.Sprintf("%v %v", color(level), msg))
-	if err != nil {
-		log.Fatal(err)
-	}
+func wrapperf(msg, level string, err error, fields []zap.Field) *zap.Logger {
+	checkInit()
+	shortLogWithError(msg, level, err, fields)
+	return zapLogger.WithOptions(zap.AddCallerSkip(1))
 }
 
-// Short log to output to the console with error.
-func shortLogWithError(msg string, level string, err error) {
-	err2 := log.Output(3, fmt.Sprintf("%v %v: \x1b[35m%v\x1b[0m", color(level), msg, err))
-	if err2 != nil {
-		log.Fatal(err2)
-	}
+func addErrorField(fields []zap.Field, err error) []zap.Field {
+	return append(fields, zap.String("error", fmt.Sprintf("%+v", err)))
 }
 
 func checkInit() {
@@ -118,37 +169,29 @@ func checkInit() {
 	}
 }
 
-func color(level string) string {
-	color := 30
-	switch level {
-	case "FATAL":
-		color = 31
-	case "ERROR":
-		color = 31
-	case "WARN":
-		color = 33
-	case "INFO":
-		color = 32
-	case "DEBUG":
-		color = 32
-	}
-	return fmt.Sprintf("\x1b[%vm%v\x1b[0m", color, level)
-}
-
 // Wrapper of pp.Print()
 func Print(i interface{}) (n int, err error) {
-	shortLog("pp.Print (console only)", "DEBUG")
+	if !checkLevel("DEBUG") {
+		return
+	}
+	shortLog("pp.Print (console only)", "DEBUG", []zap.Field{})
 	return pp.Print(i)
 }
 
 // Wrapper of pp.Println()
 func Println(i interface{}) (n int, err error) {
-	shortLog("pp.Println (console only)", "DEBUG")
+	if !checkLevel("DEBUG") {
+		return
+	}
+	shortLog("pp.Println (console only)", "DEBUG", []zap.Field{})
 	return pp.Println(i)
 }
 
 // Wrapper of spew.Dump()
 func Dump(i interface{}) {
-	shortLog("spew.Dump (console only)", "DEBUG")
+	if !checkLevel("DEBUG") {
+		return
+	}
+	shortLog("spew.Dump (console only)", "DEBUG", []zap.Field{})
 	spew.Dump(i)
 }
