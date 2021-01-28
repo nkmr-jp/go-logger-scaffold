@@ -9,7 +9,6 @@
 
 - You can also output information about the number of lines in the file, the method, the host,
   and the git version. also version is can setting from go command.
-- バージョンと現在の
 - These can be useful for debugging
 - Easily change the
   settings. ([logger/logger.go](https://github.com/nkmr-jp/go-logger-scaffold/blob/master/logger/logger.go#L32))
@@ -21,7 +20,7 @@
 ![img.png](img.png)
 - It's hard to know what's going on when the console is flood with logs.
 - The output to the console is minimal information.
-- Display log level and message with color.-
+- Display log level and message with color.
 - It can jump to Code from GoLand console log. (this is why use the standard log for console log, not zap.)
 - Using [log](https://pkg.go.dev/log).
 
