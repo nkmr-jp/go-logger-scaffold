@@ -4,24 +4,28 @@
 
 ## Features
 
-- Output json structured log to file.
-    - You can also output information about the number of lines in the file, the method, the host,
-      and the git version
-    - These can be useful for debugging
-    - Easily change the
-      settings. ([logger/logger.go](https://github.com/nkmr-jp/go-logger-scaffold/blob/master/logger/logger.go#L32))
-      .
-    - Since it is a json structure, you can use the `jq` command to extract only the data you need.
-    - Using [zap](https://github.com/uber-go/zap).
-- Output simple log to console.
-    - It's hard to know what's going on when the console is flood with logs.
-    - The output to the console is minimal information.
-    - Display log level and message with color.
-    - Using [log](https://pkg.go.dev/log).
-- Jump to Code from GoLand console log.
-    - This is why use the standard log for console log, not zap.
-- Log file rotation.
-    - Using [file-rotatelogs](https://github.com/lestrrat-go/file-rotatelogs).
+### Output json structured log to file.
+![img_1.png](img_1.png)
+
+- You can also output information about the number of lines in the file, the method, the host,
+  and the git version. also version is can setting from go command.
+- These can be useful for debugging
+- Easily change the
+  settings. ([logger/logger.go](https://github.com/nkmr-jp/go-logger-scaffold/blob/master/logger/logger.go#L32))
+  .
+- Since it is a json structure, you can use the `jq` command to extract only the data you need.
+- Using [zap](https://github.com/uber-go/zap).
+
+### Output simple log to console.
+![img.png](img.png)
+- It's hard to know what's going on when the console is flood with logs.
+- The output to the console is minimal information.
+- Display log level and message with color.
+- It can jump to Code from GoLand console log. (this is why use the standard log for console log, not zap.)
+- Using [log](https://pkg.go.dev/log).
+
+### Log file rotation.
+- Using [file-rotatelogs](https://github.com/lestrrat-go/file-rotatelogs).
 
 ## Install
 
@@ -68,21 +72,19 @@ app-2020-09-27_03.log
 
 ### Options
 
-following options can use. 
+following options can use.
 
-- `SetConsoleType(option ConsoleType)`
-- `SetLogFile(file string)`
-- `SetRotationTime(duration time.Duration)`
-- `SetPurgeTime(duration time.Duration)`
-
-example
+Please refer to [main.go](main.go) and [logger/options.go](logger/options.go)
 
 ```go
-// set options before `InitLogger()`. 
-logger.SetConsoleType(logger.ConsoleTypeNone)
-logger.SetLogFile("./log/test/app_%Y-%m-%d.log")
-logger.InitLogger()
+logger.SetLogFile("./log/app_%Y-%m-%d.log")
+logger.SetVersion(version)
+logger.SetRepositoryCallerEncoder(urlFormat, version, srcRootDir)
+logger.SetConsoleField(consoleField, traceIDField)
+logger.SetLogLevel(zapcore.DebugLevel)
+logger.SetOutputType(logger.OutputTypeShortConsoleAndFile)
 ```
+
 
 #### jq example
 
