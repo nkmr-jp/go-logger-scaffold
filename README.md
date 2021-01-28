@@ -53,6 +53,23 @@ func main() {
 }
 ```
 
+### Options
+
+following options can use.
+
+Please refer to [main.go](main.go) and [logger/options.go](logger/options.go)
+
+```go
+logger.SetLogFile("./log/app_%Y-%m-%d.log")
+logger.SetVersion(version)
+logger.SetRepositoryCallerEncoder(urlFormat, version, srcRootDir)
+logger.SetConsoleField(consoleField, traceIDField)
+logger.SetLogLevel(zapcore.DebugLevel)
+logger.SetOutputType(logger.OutputTypeShortConsoleAndFile)
+```
+
+
+
 ## Output
 
 ### Console
@@ -69,22 +86,6 @@ $ go run main.go
 ls log/
 app-2020-09-27_03.log
 ```
-
-### Options
-
-following options can use.
-
-Please refer to [main.go](main.go) and [logger/options.go](logger/options.go)
-
-```go
-logger.SetLogFile("./log/app_%Y-%m-%d.log")
-logger.SetVersion(version)
-logger.SetRepositoryCallerEncoder(urlFormat, version, srcRootDir)
-logger.SetConsoleField(consoleField, traceIDField)
-logger.SetLogLevel(zapcore.DebugLevel)
-logger.SetOutputType(logger.OutputTypeShortConsoleAndFile)
-```
-
 
 #### jq example
 

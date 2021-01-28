@@ -1,3 +1,4 @@
+// Created from https://github.com/nkmr-jp/go-logger-scaffold
 package logger
 
 import (
