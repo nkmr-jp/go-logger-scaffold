@@ -30,7 +30,7 @@ func main() {
 	logger.SetVersion(version)
 	logger.SetRepositoryCallerEncoder(urlFormat, version, srcRootDir)
 	logger.SetConsoleField(consoleField, traceIDField)
-	logger.SetLogLevel(zapcore.InfoLevel)
+	logger.SetLogLevel(zapcore.DebugLevel)
 	logger.SetOutputType(logger.OutputTypeShortConsoleAndFile)
 
 	// Initialize

@@ -169,29 +169,29 @@ func checkInit() {
 	}
 }
 
-// Wrapper of pp.Print()
+// Print is Wrapper of pp.Print()
 func Print(i interface{}) (n int, err error) {
 	if !checkLevel("DEBUG") {
 		return
 	}
-	shortLog("pp.Print (console only)", "DEBUG", []zap.Field{})
+	wrapper("pp.Print (console only)", "DEBUG", []zap.Field{})
 	return pp.Print(i)
 }
 
-// Wrapper of pp.Println()
+// Println is Wrapper of pp.Println()
 func Println(i interface{}) (n int, err error) {
 	if !checkLevel("DEBUG") {
 		return
 	}
-	shortLog("pp.Println (console only)", "DEBUG", []zap.Field{})
+	wrapper("pp.Println (console only)", "DEBUG", []zap.Field{})
 	return pp.Println(i)
 }
 
-// Wrapper of spew.Dump()
+// Dump is Wrapper of spew.Dump()
 func Dump(i interface{}) {
 	if !checkLevel("DEBUG") {
 		return
 	}
-	shortLog("spew.Dump (console only)", "DEBUG", []zap.Field{})
+	wrapper("spew.Dump (console only)", "DEBUG", []zap.Field{})
 	spew.Dump(i)
 }
