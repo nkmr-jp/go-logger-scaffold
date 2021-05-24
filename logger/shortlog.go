@@ -25,7 +25,15 @@ func shortLog(msg, levelStr string, fields []zap.Field) {
 		return
 	}
 
-	err := log.Output(4, fmt.Sprintf("%v %v%v", color(levelStr), msg, getConsoleMsg(fields)))
+	var fieldMsg string
+	if levelStr == "DEBUG" {
+		msg = Faint(msg).String()
+		fieldMsg = Faint(getConsoleMsg(fields)).String()
+	} else {
+		fieldMsg = getConsoleMsg(fields)
+	}
+
+	err := log.Output(4, fmt.Sprintf("%v %v%v", color(levelStr), msg, fieldMsg))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -92,9 +100,9 @@ func color(level string) string {
 	case "WARN":
 		level = Yellow(level).String()
 	case "INFO":
-		level = Green(level).String()
+		level = BrightBlue(level).String()
 	case "DEBUG":
-		level = Green(level).String()
+		level = BrightBlack(level).String()
 	}
 	return level
 }
