@@ -74,7 +74,7 @@ func (w *Wrapper) Fatalf(msg string, err error, fields ...zap.Field) {
 	wrapperf(msg, "FATAL", err, fields).Fatal(msg, fields...)
 }
 
-// Wrapper of Zap's Sync.
+// Sync wrapper of Zap's Sync.
 func Sync() {
 	Info("FLUSH_LOG_BUFFER")
 	if err := zapLogger.Sync(); err != nil {
@@ -82,7 +82,7 @@ func Sync() {
 	}
 }
 
-// flush log buffer. when interrupt or terminated.
+// SyncWhenStop flush log buffer. when interrupt or terminated.
 func SyncWhenStop() {
 	c := make(chan os.Signal, 1)
 
