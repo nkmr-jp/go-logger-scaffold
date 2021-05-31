@@ -14,8 +14,11 @@ import (
 type ConsoleType int
 
 const (
+	// ConsoleTypeAll output all console log (default)
 	ConsoleTypeAll ConsoleType = iota
+	// ConsoleTypeError output only error log
 	ConsoleTypeError
+	// ConsoleTypeNone no output console log
 	ConsoleTypeNone
 )
 

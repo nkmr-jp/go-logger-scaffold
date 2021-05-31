@@ -37,7 +37,7 @@ func InitLogger() *zap.Logger {
 
 // See https://pkg.go.dev/go.uber.org/zap
 func initZapLogger() {
-	if consoleType != ConsoleTypeNone {
+	if consoleType == ConsoleTypeAll {
 		log.Printf("log level: %v", logLevel.CapitalString())
 		log.Printf("output type: %v", outputType.String())
 	}

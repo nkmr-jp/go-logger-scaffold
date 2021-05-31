@@ -32,7 +32,7 @@ func newRotateLogs() *rotatelogs.RotateLogs {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if consoleType != ConsoleTypeNone {
+	if consoleType == ConsoleTypeAll {
 		log.Printf("log file path: %v", logFile)
 	}
 	return res
