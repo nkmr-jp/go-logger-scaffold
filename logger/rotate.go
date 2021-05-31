@@ -1,3 +1,4 @@
+// Package logger
 // Created from https://github.com/nkmr-jp/go-logger-scaffold
 package logger
 
@@ -31,7 +32,9 @@ func newRotateLogs() *rotatelogs.RotateLogs {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("log file path: %v", logFile)
+	if consoleType != ConsoleTypeNone {
+		log.Printf("log file path: %v", logFile)
+	}
 	return res
 }
 

@@ -1,3 +1,4 @@
+// Package logger
 // Created from https://github.com/nkmr-jp/go-logger-scaffold
 package logger
 
@@ -23,7 +24,7 @@ var (
 	consoleFields []string
 )
 
-// Initialize the Logger.
+// InitLogger is initialize the Logger.
 // Outputs short logs to the console and Write structured and detailed json logs to the log file.
 func InitLogger() *zap.Logger {
 	once.Do(func() {
@@ -36,8 +37,10 @@ func InitLogger() *zap.Logger {
 
 // See https://pkg.go.dev/go.uber.org/zap
 func initZapLogger() {
-	log.Printf("log level: %v", logLevel.CapitalString())
-	log.Printf("output type: %v", outputType.String())
+	if consoleType != ConsoleTypeNone {
+		log.Printf("log level: %v", logLevel.CapitalString())
+		log.Printf("output type: %v", outputType.String())
+	}
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "ts",
 		LevelKey:       "level",

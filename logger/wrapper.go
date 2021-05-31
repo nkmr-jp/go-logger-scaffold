@@ -1,3 +1,4 @@
+// Package logger
 // Created from https://github.com/nkmr-jp/go-logger-scaffold
 package logger
 
@@ -171,7 +172,7 @@ func checkInit() {
 
 // Print is Wrapper of pp.Print()
 func Print(i interface{}) (n int, err error) {
-	if !checkLevel("DEBUG") {
+	if !checkLevel("DEBUG") || consoleType == ConsoleTypeNone {
 		return
 	}
 	wrapper("pp.Print (console only)", "DEBUG", []zap.Field{})
@@ -180,7 +181,7 @@ func Print(i interface{}) (n int, err error) {
 
 // Println is Wrapper of pp.Println()
 func Println(i interface{}) (n int, err error) {
-	if !checkLevel("DEBUG") {
+	if !checkLevel("DEBUG") || consoleType == ConsoleTypeNone {
 		return
 	}
 	wrapper("pp.Println (console only)", "DEBUG", []zap.Field{})
@@ -189,7 +190,7 @@ func Println(i interface{}) (n int, err error) {
 
 // Dump is Wrapper of spew.Dump()
 func Dump(i interface{}) {
-	if !checkLevel("DEBUG") {
+	if !checkLevel("DEBUG") || consoleType == ConsoleTypeNone {
 		return
 	}
 	wrapper("spew.Dump (console only)", "DEBUG", []zap.Field{})
