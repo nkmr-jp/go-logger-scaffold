@@ -1,3 +1,5 @@
+This repository has been archived. Use [zap-lightning](https://github.com/nkmr-jp/zap-lightning) instead.
+
 # go-logger-scaffold
 
 :rocket: Scaffolding for Easy setup that Json Logger and Log File Rotation to golang projects.
