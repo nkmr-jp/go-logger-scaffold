@@ -1,4 +1,4 @@
-This repository has been archived. Use [zap-lightning](https://github.com/nkmr-jp/zap-lightning) instead.
+This repository has been archived. Use [zl](https://github.com/nkmr-jp/zl) instead.
 
 # go-logger-scaffold
 
